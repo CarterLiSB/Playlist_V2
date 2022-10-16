@@ -202,6 +202,25 @@ undoDeleteSong = (req, res) => {
     })
 }
 
+editSong = async (req, res) => {
+    let body = req.body
+    Playlist.findOne({_id: req.params.id }, (err, playlist) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+        const index = req.body.index
+        const song = req.body.song
+
+        playlist.songs.set(index, song)
+        playlist.markModified("songs")
+
+        playlist.save()
+        .then(() => { return res.status(200).json({success: true, playlist})})
+        .catch(err => {return res.status(500).json({success: false})})
+        
+    })
+}
+
 module.exports = {
     createPlaylist,
     getPlaylists,
@@ -211,5 +230,6 @@ module.exports = {
     addSong,
     undoAddSong,
     deleteSong,
-    undoDeleteSong
+    undoDeleteSong,
+    editSong
 }

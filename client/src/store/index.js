@@ -200,7 +200,8 @@ export const useGlobalStore = () => {
             case GlobalStoreActionType.HIDE_EDIT_SONG_MODAL:{
                 return setStore(prev => ({
                     ...prev,
-                    songMarkedForEdit: null
+                    songMarkedForEdit: null,
+                    songMarkedForEditIndex: null
                 }))
             }
 
@@ -434,6 +435,12 @@ export const useGlobalStore = () => {
     }
 
     store.markSongForEdit = function(song, index) {
+        let inputTitle = document.getElementById("input-title");
+        let inputArtist = document.getElementById("input-artist");
+        let inputID = document.getElementById("input-id");
+        inputTitle.value = song.title;
+        inputArtist.value = song.artist;
+        inputID.value = song.youTubeId;
         storeReducer({
             type: GlobalStoreActionType.MARK_SONG_FOR_EDIT,
             payload: {song, index}
@@ -444,10 +451,11 @@ export const useGlobalStore = () => {
         tps.addTransaction(new EditSong_Transaction(store, oldSong, newSong, index));
     }
 
-    store.editSong = function(index){
+    store.editSong = function(song, index){
         store.hideEditSongModal();
         async function asyncEditSong(){
-            let response = await api.editSong(store.currentList._id, index)
+            let body = {song, index}
+            let response = await api.editSong(store.currentList._id, body)
             if(response.data.success){
                 storeReducer({
                     type: GlobalStoreActionType.EDIT_SONG,
