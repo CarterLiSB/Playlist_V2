@@ -88,8 +88,8 @@ getPlaylistPairs = async (req, res) => {
 }
 
 deletePlaylist = (req, res) => {
-    console.log(req);
-    Playlist.deleteOne({ _id: req.params.id }, (err, list) => {
+    //console.log(req);
+    Playlist.deleteOne({ _id: req.params.id }, (err, playlist) => {
         if (err) {
             return res.status(400).json({ success: false, error: err })
         }
@@ -97,11 +97,65 @@ deletePlaylist = (req, res) => {
     })
 }
 
+addSong = (req, res) => {
+    //console.log("hi")
+    Playlist.findOne({ _id: req.params.id }, (err, playlist) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+        let defaultSong = {
+            title: "Untitled",
+            artist: "Unknown",
+            youTubeId: "dQw4w9WgXcQ"
+        }
+        playlist.songs.push(defaultSong)
+        playlist.save()
+        .then(() => {
+            return res.status(201).json({
+                success: true,
+                playlist: playlist,
+                message: 'New Song Added!',
+            })
+        })
+        .catch(error => {
+            return res.status(500).json({
+                error,
+                message: 'New Song Not Added!',
+            })
+        })
+    })
+}
+
+undoAddSong = (req, res) => {
+    //console.log("hi")
+    Playlist.findOne({ _id: req.params.id }, (err, playlist) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+        playlist.songs.pop()
+        playlist.save()
+        .then(() => {
+            return res.status(201).json({
+                success: true,
+                playlist: playlist,
+                message: 'Undid Add Song',
+            })
+        })
+        .catch(error => {
+            return res.status(500).json({
+                error,
+                message: 'Could Not Undo Add Song!',
+            })
+        })
+    })
+}
 
 module.exports = {
     createPlaylist,
     getPlaylists,
     getPlaylistPairs,
     getPlaylistById,
-    deletePlaylist
+    deletePlaylist,
+    addSong,
+    undoAddSong
 }

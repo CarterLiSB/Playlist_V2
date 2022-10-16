@@ -51,7 +51,6 @@ function ListCard(props) {
     }
 
     function handleDeleteList(event) {
-        console.log("beep");
         event.stopPropagation();
         store.markListForDeletion(idNamePair);
     }

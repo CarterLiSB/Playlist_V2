@@ -60,6 +60,8 @@ body {
   grid-row: 1 / 2;
   background-color: transparent;
   float:right;
+  display: flex;
+  border: solid black;
 }
 
 #playlist-selector, #playlist-cards {
@@ -71,6 +73,12 @@ body {
   max-height: 75%;
 }
 
+#playlist-selector-heading {
+  font-size: 32pt;
+  padding: 10pt;
+  border: solid black;
+  border-radius: 10px;
+}
 .playlister-button, .playlister-button-disabled {
   font-size:36pt;
   border-width: 0px;

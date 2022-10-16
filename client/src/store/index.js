@@ -1,7 +1,13 @@
 import { createContext, useState } from 'react'
 import jsTPS from '../common/jsTPS'
 import api from '../api'
+import AddSong_Transaction from '../transactions/AddSong_Transaction';
+
+// import DeleteSong_Transaction from '../transactions/DeleteSong_Transaction.js'
+// import EditSong_Transaction from '../transactions/EditSong_Transaction.js'
+// import MoveSong_Transaction from '../transactions/MoveSong_Transaction.js'
 export const GlobalStoreContext = createContext({});
+
 /*
     This is our global data store. Note that it uses the Flux design pattern,
     which makes use of things like actions and reducers. 
@@ -20,7 +26,9 @@ export const GlobalStoreActionType = {
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
     MARK_LIST_FOR_DELETION: "MARK_LIST_FOR_DELETION",
     DELETE_LIST: "DELETE_LIST",
-    HIDE_DELETE_LIST_MODAL: "HIDE_DELETE_LIST_MODAL"
+    HIDE_DELETE_LIST_MODAL: "HIDE_DELETE_LIST_MODAL",
+    ADD_SONG: "ADD_SONG",
+    UNDO_ADD_SONG: "UNDO_ADD_SONG"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -121,6 +129,21 @@ export const useGlobalStore = () => {
                     listMarkedForDeletion: null
                 }))
             }
+
+            case GlobalStoreActionType.ADD_SONG:{
+                return setStore(prev => ({
+                    ...prev,
+                    currentList: payload
+                }))
+            }
+
+            case GlobalStoreActionType.UNDO_ADD_SONG:{
+                return setStore(prev => ({
+                    ...prev,
+                    currentList: payload
+                }))
+            }
+
             default:
                 return store;
         }
@@ -189,7 +212,7 @@ export const useGlobalStore = () => {
     }
 
     store.setCurrentList = function (id) {
-        console.log(store.newListCounter);
+        //console.log(store.newListCounter);
         async function asyncSetCurrentList(id) {
             let response = await api.getPlaylistById(id);
             if (response.data.success) {
@@ -270,6 +293,49 @@ export const useGlobalStore = () => {
             type: GlobalStoreActionType.HIDE_DELETE_LIST_MODAL
         })
     }
+
+    store.addAddSongTransaction = function() {
+        console.log(AddSong_Transaction)
+        tps.addTransaction(new AddSong_Transaction(store));
+    }
+
+    store.addSong = function() {
+        async function asyncAddSong(){
+            let response = await api.addSong(store.currentList._id)
+            if(response.data.success){
+                storeReducer({
+                    type: GlobalStoreActionType.ADD_SONG,
+                    payload: response.data.playlist
+                })
+            }
+        }
+        asyncAddSong();
+    }
+
+    store.undoAddSong = function() {
+        async function asyncUndoAddSong(){
+            let response = await api.undoAddSong(store.currentList._id)
+            if(response.data.success){
+                storeReducer({
+                    type: GlobalStoreActionType.UNDO_ADD_SONG,
+                    payload: response.data.playlist
+                })
+            }
+        }
+        asyncUndoAddSong();
+    }
+
+    // store.addDeleteSongTransaction = function(index, song){
+    //     tps.addTransaction(new DeleteSong_Transaction(store, index, song));
+    // }
+
+    // store.addEditSongTransaction = function(index, oldTitle, oldArtist, oldID, newTitle, newArtist, newID){
+    //     tps.addTransaction(new EditSong_Transaction(store, index, oldTitle, oldArtist, oldID, newTitle, newArtist, newID));
+    // }
+
+    // store.hideEditSongModal = function(){
+
+    // }
 
     // THIS GIVES OUR STORE AND ITS REDUCER TO ANY COMPONENT THAT NEEDS IT
     return { store, storeReducer };
