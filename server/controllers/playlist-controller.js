@@ -150,6 +150,58 @@ undoAddSong = (req, res) => {
     })
 }
 
+deleteSong = (req, res) => {
+    Playlist.findOne({ _id: req.params.id }, (err, playlist) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+        const songs = playlist.songs
+        songs.splice(req.params.index, 1)
+        playlist.songs = songs
+        playlist.save()
+        .then(() => {
+            return res.status(201).json({
+                success: true,
+                playlist: playlist,
+                message: 'Deleted Song',
+            })
+        })
+        .catch(error => {
+            return res.status(500).json({
+                error,
+                message: 'Could not delete song',
+            })
+        })
+    })
+}
+
+undoDeleteSong = (req, res) => {
+    Playlist.findOne({ _id: req.params.id }, (err, playlist) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+        const index = req.body.index
+        const song = req.body.song
+
+        playlist.songs.splice(index, 0, song)
+
+        playlist.save()
+        .then(() => {
+            return res.status(201).json({
+                success: true,
+                playlist: playlist,
+                message: 'Undid Delete Song',
+            })
+        })
+        .catch(error => {
+            return res.status(500).json({
+                error,
+                message: 'Could not undo delete song!',
+            })
+        })
+    })
+}
+
 module.exports = {
     createPlaylist,
     getPlaylists,
@@ -157,5 +209,7 @@ module.exports = {
     getPlaylistById,
     deletePlaylist,
     addSong,
-    undoAddSong
+    undoAddSong,
+    deleteSong,
+    undoDeleteSong
 }

@@ -3,14 +3,26 @@ import { GlobalStoreContext } from '../store'
 
 function SongCard(props) {
     const { store } = useContext(GlobalStoreContext);
-
+    const idNamePair = props;
     const { song, index } = props;
     let cardClass = "list-card unselected-list-card";
+
+    function handleDelete(event) {
+        event.stopPropagation();
+        store.markSongForDeletion(idNamePair, index);
+    }
+
+    function handleEditSong(event) {
+        event.stopPropagation();
+        store.markSongForEdit(song, index);
+    }
+
     return (
         <div
             key={index}
             id={'song-' + index + '-card'}
             className={cardClass}
+            onDoubleClick = {handleEditSong}
         >
             {index + 1}.
             <a
@@ -23,6 +35,7 @@ function SongCard(props) {
                 type="button"
                 id={"remove-song-" + index}
                 className="list-card-button"
+                onClick = {handleDelete}
                 value={"\u2715"}
             />
         </div>

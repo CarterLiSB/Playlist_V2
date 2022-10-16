@@ -14,7 +14,6 @@ function EditToolbar() {
     let enabledButtonClass = "playlister-button";
 
     function handleUndo() {
-        console.log("in edit toolbar")
         store.undo();
     }
     function handleRedo() {
