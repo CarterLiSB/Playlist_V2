@@ -6,6 +6,7 @@ const DeleteSongModal = () => {
     const { store } = useContext(GlobalStoreContext);
     let name = "";
     let className = "modal"
+    //console.log(store.songMarkedForDeletion)
     if (store.songMarkedForDeletion) {
         name = store.songMarkedForDeletion.song.title;
         className += " is-visible"

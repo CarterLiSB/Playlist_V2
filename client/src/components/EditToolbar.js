@@ -39,8 +39,8 @@ function EditToolbar() {
     let canClose = store.currentList !== null;
     let canAddList = store.currentList === null;
 
-    // console.log(store.songMarkedForEdit);
-    // console.log(store.songMarkedForDeletion);
+    //console.log(store.currentList);
+    //console.log("toolbar " + store.songMarkedForDeletion);
     // console.log(canAddList);
     // console.log("Add: " + canAddSong);
     // console.log("Undo: " + canUndo);

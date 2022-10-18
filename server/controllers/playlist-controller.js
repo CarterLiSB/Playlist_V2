@@ -254,6 +254,20 @@ moveSong = async (req, res) => {
     })
 }
 
+updatePlaylistById = async (req, res) => {
+    const body = req.body;
+    Playlist.findOne({ _id: req.params.id }, (err, list) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+        list.name = body.name;
+        list.save().then(() => {
+            return res.status(200).json({ success: true, playlist: list })
+        })
+        .catch(err => {return res.status(500).json({success: false})})
+    }).catch(err => console.log(err))
+}
+
 module.exports = {
     createPlaylist,
     getPlaylists,
@@ -265,5 +279,6 @@ module.exports = {
     deleteSong,
     undoDeleteSong,
     editSong,
-    moveSong
+    moveSong,
+    updatePlaylistById,
 }

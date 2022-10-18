@@ -18,7 +18,17 @@ const ListSelector = () => {
     function handleCreateNewList() {
         store.createNewList();
     }
-    
+
+    let enabledAddList = "playlister-button";
+    let canAddList = store.currentList === null;
+    if(store.listMarkedForDeletion !== undefined && store.listMarkedForDeletion !== null){
+        canAddList = false;
+    }
+    if(!canAddList){
+        enabledAddList += "-disabled"
+    }
+    //console.log(canAddList);
+
     let listCard = "";
     if (store) {
         listCard = store.idNamePairs.map((pair) => (
@@ -37,7 +47,7 @@ const ListSelector = () => {
                     type="button"
                     id="add-list-button"
                     onClick={handleCreateNewList}
-                    className="playlister-button"
+                    className={enabledAddList}
                     value="+" />
                 Your Lists
             </div>                {
