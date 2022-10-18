@@ -221,6 +221,39 @@ editSong = async (req, res) => {
     })
 }
 
+moveSong = async (req, res) => {
+    let body = req.body
+    Playlist.findOne({_id: req.params.id }, (err, playlist) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+
+        let start = body.oldIndex;
+        let end = body.newIndex;
+        let list = playlist;    
+        // WE NEED TO UPDATE THE STATE FOR THE APP
+        if (start < end) {
+            let temp = list.songs[start];
+            for (let i = start; i < end; i++) {
+                list.songs[i] = list.songs[i + 1];
+            }
+            list.songs[end] = temp;
+        }
+        else if (start > end) {
+            let temp = list.songs[start];
+            for (let i = start; i > end; i--) {
+                list.songs[i] = list.songs[i - 1];
+            }
+            list.songs[end] = temp;
+        }
+        playlist.markModified("songs")
+        playlist.save()
+        .then(() => { return res.status(200).json({success: true, playlist})})
+        .catch(err => {return res.status(500).json({success: false})})
+        
+    })
+}
+
 module.exports = {
     createPlaylist,
     getPlaylists,
@@ -231,5 +264,6 @@ module.exports = {
     undoAddSong,
     deleteSong,
     undoDeleteSong,
-    editSong
+    editSong,
+    moveSong
 }

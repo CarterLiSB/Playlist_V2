@@ -4,6 +4,7 @@ import api from '../api'
 import AddSong_Transaction from '../transactions/AddSong_Transaction';
 import DeleteSong_Transaction from '../transactions/DeleteSong_Transaction';
 import EditSong_Transaction from '../transactions/EditSong_Transaction';
+import MoveSong_Transaction from '../transactions/MoveSong_Transaction';
 
 // import DeleteSong_Transaction from '../transactions/DeleteSong_Transaction.js'
 // import EditSong_Transaction from '../transactions/EditSong_Transaction.js'
@@ -37,7 +38,8 @@ export const GlobalStoreActionType = {
     HIDE_DELETE_SONG_MODAL: "HIDE_DELETE_SONG_MODAL",
     MARK_SONG_FOR_EDIT: "MARK_SONG_FOR_EDIT",
     EDIT_SONG: "EDIT_SONG",
-    HIDE_EDIT_SONG_MODAL: "HIDE_EDIT_SONG_MODAL"
+    HIDE_EDIT_SONG_MODAL: "HIDE_EDIT_SONG_MODAL",
+    MOVE_SONG: "MOVE_SONG"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -164,7 +166,9 @@ export const useGlobalStore = () => {
             case GlobalStoreActionType.DELETE_SONG:{
                 return setStore(prev => ({
                     ...prev,
-                    currentList: payload
+                    currentList: payload,
+                    songMarkedForDeletion: null,
+                    songMarkedForDeletionIndex: null
                 }))
             }
 
@@ -193,7 +197,9 @@ export const useGlobalStore = () => {
             case GlobalStoreActionType.EDIT_SONG:{
                 return setStore(prev => ({
                     ...prev,
-                    currentList: payload
+                    currentList: payload,
+                    songMarkedForEdit: null,
+                    songMarkedForEditIndex: null
                 }))
             }
 
@@ -205,6 +211,12 @@ export const useGlobalStore = () => {
                 }))
             }
 
+            case GlobalStoreActionType.MOVE_SONG:{
+                return setStore(prev => ({
+                    ...prev,
+                    currentList: payload
+                }))
+            }
 
             default:
                 return store;
@@ -472,6 +484,27 @@ export const useGlobalStore = () => {
         })
     }
 
+    store.addMoveSongTransaction = function(oldIndex, newIndex){
+        tps.addTransaction(new MoveSong_Transaction(store, oldIndex, newIndex));
+    }
+
+    store.moveSong = function(oldIndex, newIndex){
+        async function asyncMoveSong(){
+            let body = {oldIndex, newIndex}
+            let response = await api.moveSong(store.currentList._id, body)
+            if(response.data.success){
+                storeReducer({
+                    type:GlobalStoreActionType.MOVE_SONG,
+                    payload: response.data.playlist
+                })
+            }
+        }
+        asyncMoveSong();
+    }
+
+    store.getTPS = function(){
+        return tps;
+    }
     // THIS GIVES OUR STORE AND ITS REDUCER TO ANY COMPONENT THAT NEEDS IT
     return { store, storeReducer };
 }

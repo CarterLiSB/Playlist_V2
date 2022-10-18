@@ -12,6 +12,11 @@ function EditToolbar() {
     const history = useHistory();
 
     let enabledButtonClass = "playlister-button";
+    let enabledAddSong = "playlister-button";
+    let enabledUndo = "playlister-button";
+    let enabledRedo = "playlister-button";
+    let enabledClose = "playlister-button";
+
 
     function handleUndo() {
         store.undo();
@@ -27,43 +32,74 @@ function EditToolbar() {
     function handleAddSong() {
         store.addAddSongTransaction();
     }
+    
+    let canAddSong = store.currentList !== null;
+    let canUndo = store.getTPS().hasTransactionToUndo();
+    let canRedo = store.getTPS().hasTransactionToRedo();
+    let canClose = store.currentList !== null;
+    let canAddList = store.currentList === null;
 
-    let editStatus = false;
-    if (store.isListNameEditActive) {
-        editStatus = true;
+    // console.log(store.songMarkedForEdit);
+    // console.log(store.songMarkedForDeletion);
+    // console.log(canAddList);
+    // console.log("Add: " + canAddSong);
+    // console.log("Undo: " + canUndo);
+    // console.log("Redo: " + canRedo);
+    // console.log("Close: " + canClose);
+    
+    if(store.songMarkedForEdit !== undefined && store.songMarkedForEdit !== null || store.songMarkedForDeletion !== undefined && store.songMarkedForDeletion !== null || canAddList){
+        //console.log("All False")
+        canAddSong = false;
+        canUndo = false;
+        canRedo = false;
+        canClose = false;
     }
+
+    if(!canAddSong){
+        enabledAddSong += "-disabled"
+    }
+    if(!canUndo){
+        enabledUndo += "-disabled"
+    }
+    if(!canRedo){
+        enabledRedo += "-disabled"
+    }
+    if(!canClose){
+        enabledClose += "-disabled"
+    }
+
     return (
         <span id="edit-toolbar">
             <input
                 type="button"
                 id='add-song-button'
-                disabled={editStatus}
+                disabled={!canAddSong}
                 value="+"
-                className={enabledButtonClass}
+                className={enabledAddSong}
                 onClick = {handleAddSong}
             />
             <input
                 type="button"
                 id='undo-button'
-                disabled={editStatus}
+                disabled={!canUndo}
                 value="⟲"
-                className={enabledButtonClass}
+                className={enabledUndo}
                 onClick={handleUndo}
             />
             <input
                 type="button"
                 id='redo-button'
-                disabled={editStatus}
+                disabled={!canRedo}
                 value="⟳"
-                className={enabledButtonClass}
+                className={enabledRedo}
                 onClick={handleRedo}
             />
             <input
                 type="button"
                 id='close-button'
-                disabled={editStatus}
+                disabled={!canClose}
                 value="&#x2715;"
-                className={enabledButtonClass}
+                className={enabledClose}
                 onClick={handleClose}
             />
         </span>);
